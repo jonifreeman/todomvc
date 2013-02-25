@@ -6,37 +6,44 @@
     , $input = $('new-todo')
     , $itemList = $('todo-list')
     , $todoCountWrapper = $('todo-count')
-    , $todoCount = $todoCountWrapper.firstChild
+    , $todoCount = $todoCountWrapper.firstElementChild
+    , $itemTemplate = $itemList.firstElementChild
 
   var ENTER = 13
 
   chain()
    (hide($main))
    (hide($footer))
+   (function () {$itemList.removeChild($itemTemplate)})
    .run()
 
   on($input, 'keyup')
-    (map('which'))
     (filterKeyCode(ENTER))
     (inputValue)
     (filterNonEmpty)
     (createTodo)
+    (addTodoToList)
     (show($main))
     (show($footer))
     (updateTodoCount)
     (pluralizeTodoCount)
     .run()
 
-  function map(key) {return function (obj) {return obj[key]}}
-  function filterKeyCode(code) {return function (eventCode) {if (code !== eventCode) this.cancel()}}
+  function filterKeyCode(code) {return function (event) {if (code !== event.which) this.cancel()}}
   function inputValue() {return $input.value.trim()}
   function filterNonEmpty(value) {
     if (value.length === 0) this.cancel()
     return value
   }
   function createTodo(text) {
-    $itemList.innerHTML += '<li>' + text
+    var $todo = $itemTemplate.cloneNode(true)
+    setTodoLabel($todo, text)
+    setTodoEditValue($todo, text)
+    return $todo
   }
+  function setTodoLabel($todo, text) {$todo.children[0].children[1].innerHTML = text}
+  function setTodoEditValue($todo, text) {$todo.children[1].setAttribute('value', text)}
+  function addTodoToList($todo) {$itemList.appendChild($todo)}
   function updateTodoCount() {$todoCount.innerHTML = $itemList.children.length}
   function pluralizeTodoCount() {
     if ($itemList.children.length === 1) setClass($todoCountWrapper, '')
@@ -53,47 +60,7 @@
 
   function on(elem, eventType, callback) {
     return chain() 
-      (function (done) {
-        elem.addEventListener(eventType, function (event) {done(event)}, false)
-      })
-  }
-
-  function chain() {
-    var queue = []
-    function chainer(func) {
-      queue.push(func)
-      return chainer
-    }
-    chainer.run = function () {return run(queue)}
-
-    var withoutContext = null
-    
-    function run(queue /*, ...*/) {
-      if (queue.length === 0) return 
-      var skipFirst = 1
-        , params = slice(arguments, skipFirst)
-        , restOfQueue = queue.slice(skipFirst)
-        , func = queue[0]
-        , ctx = {
-            shouldContinue: true
-          , cancel: function () {this.shouldContinue = false}
-          }
-
-      if (isAsync(func, params)) {
-        func.apply(ctx, params.concat([doneCallback(ctx, restOfQueue)]))
-      } else {
-        var ret = func.apply(ctx, params)
-        if (ctx.shouldContinue) run(restOfQueue, ret)
-      }
-    }
-    function isAsync(func, params) {
-      return func.length > params.length
-    }
-    function slice(x, skipFromBeginning) {return [].slice.call(x, skipFromBeginning)}
-    function doneCallback(ctx, queue) {return function (/*...*/) {
-      if (ctx.shouldContinue) run.apply(withoutContext, [queue].concat(slice(arguments)))
-    }}
-    return chainer
+      (function (done) {elem.addEventListener(eventType, function (event) {done(event)}, false)})
   }
 
 })( window );
