@@ -1,3 +1,3 @@
 /* base.css overrides */
-#todo-count.plural .plural {display: inline;}
-#todo-count .plural {display: none;}
+#todo-count.plural::after {content: ' items left';}
+#todo-count::after {content: ' item left';}

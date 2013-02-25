@@ -12,10 +12,10 @@
   var ENTER = 13
 
   chain()
-   (hide($main))
-   (hide($footer))
-   (function () {$itemList.removeChild($itemTemplate)})
-   .run()
+    (hide($main))
+    (hide($footer))
+    (function () {$itemList.removeChild($itemTemplate)})
+    .run()
 
   on($input, 'keyup')
     (filterKeyCode(ENTER))
