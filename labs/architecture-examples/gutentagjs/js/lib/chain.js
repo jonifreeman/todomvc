@@ -1,13 +1,13 @@
 function chain() {
   var queue = []
+    , withoutContext = null
+    
   function chainer(func) {
     queue.push(func)
     return chainer
   }
   chainer.run = function () {return run(queue)}
 
-  var withoutContext = null
-  
   function run(queue /*, ...*/) {
     if (queue.length === 0) return 
     var skipFirst = 1
@@ -18,7 +18,6 @@ function chain() {
           shouldContinue: true
         , cancel: function () {this.shouldContinue = false}
         }
-
     if (isAsync(func, params)) {
       func.apply(ctx, params.concat([doneCallback(ctx, restOfQueue)]))
     } else {

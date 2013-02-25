@@ -29,6 +29,16 @@
     (pluralizeTodoCount)
     .run()
 
+  // TODO toggle complete on click
+
+  // TODO delete single item
+
+  // TODO edit on double click
+
+  // TODO hide completed 
+
+  // TODO router (all/active/completed)
+
   function filterKeyCode(code) {return function (event) {if (code !== event.which) this.cancel()}}
   function inputValue() {return $input.value.trim()}
   function filterNonEmpty(value) {
