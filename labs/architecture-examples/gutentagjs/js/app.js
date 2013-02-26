@@ -6,6 +6,7 @@
     , $input = $('new-todo')
     , $itemList = $('todo-list')
     , $todoCountWrapper = $('todo-count')
+    , $completedCount = $('clear-completed')
     , $todoCount = $todoCountWrapper.firstElementChild
     , $itemTemplate = $itemList.firstElementChild
 
@@ -14,6 +15,7 @@
   chain()
     (hide($main))
     (hide($footer))
+    (hide($completedCount))
     (function () {$itemList.removeChild($itemTemplate)})
     .run()
 
@@ -31,7 +33,33 @@
 
   // TODO toggle complete on click
 
-  // TODO delete single item
+  on($itemList, 'click')
+    (filterDestroyButton)
+    (deleteTodoItem)
+    (updateTodoCount)
+    (pluralizeTodoCount)
+    (toggleVisibility($main, $todoCount))
+    (toggleVisibility($footer, $todoCount))
+    (updateCompletedCount)
+    .run()
+
+
+  function filterDestroyButton(event) {
+    if (event.target.tagName.toLowerCase() !== 'button' || event.target.className !== 'destroy') this.cancel()
+    return event
+  }
+  function deleteTodoItem(event) {
+    var todoItem = event.target.parentNode.parentNode
+    todoItem.parentNode.removeChild(todoItem)
+  }
+  function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
+  function toggleVisibility($elem, $count) {
+    return function () {
+      if (toInt($count.innerHTML) > 0) show($elem)()
+      else hide($elem)()
+    }
+  }
+  function toInt(x) {return +x}
 
   // TODO edit on double click
 
@@ -68,7 +96,7 @@
   function show(elem) {return function () {elem.style.display = elem.origDisplay || 'block'}}
   function setClass(elem, className) {elem.className = className}
 
-  function on(elem, eventType, callback) {
+  function on(elem, eventType) {
     return chain() 
       (function (done) {elem.addEventListener(eventType, function (event) {done(event)}, false)})
   }
