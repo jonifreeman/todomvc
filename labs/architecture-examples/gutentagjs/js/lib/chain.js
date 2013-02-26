@@ -1,7 +1,7 @@
 function chain() {
   var queue = []
     , withoutContext = null
-    
+
   function chainer(func) {
     queue.push(func)
     return chainer
@@ -25,9 +25,8 @@ function chain() {
       if (ctx.shouldContinue) run(restOfQueue, ret)
     }
   }
-  function isAsync(func, params) {
-    return func.length > params.length
-  }
+  // if function has more params than we are passing in, it has a 'done' param, thus is treated as asynchronous
+  function isAsync(func, params) {return func.length > params.length}  
   function slice(x, skipFromBeginning) {return [].slice.call(x, skipFromBeginning)}
   function doneCallback(ctx, queue) {return function (/*...*/) {
     if (ctx.shouldContinue) run.apply(withoutContext, [queue].concat(slice(arguments)))
