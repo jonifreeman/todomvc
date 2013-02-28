@@ -135,9 +135,9 @@
   function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
   function parent($elem) {return $elem.parentNode}
 
-  function on(elem, eventType, delegateSelector) {
+  function on($elem, eventType, delegateSelector) {
     return chain() 
-      (function (done) {elem.addEventListener(eventType, function (event) {done(event)}, false)})
+      (function (done) {$elem.addEventListener(eventType, function (event) {done(event)}, false)})
       (function (event) {
         if (delegateSelector && !matchesQuerySelector(event.target, delegateSelector)) this.cancel()
         return event
