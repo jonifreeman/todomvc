@@ -72,6 +72,17 @@
     (toggleVisibility($completedCount, $completedCount))
     .run()
 
+  on($completedCount, 'click')
+    (mapCompletedTodos)
+    (each(deleteTodoItem))
+    (updateTodoCount)
+    (pluralizeTodoCount)
+    (toggleVisibility($main, $todoCount))
+    (toggleVisibility($footer, $todoCount))
+    (updateCompletedCount)
+    (toggleVisibility($completedCount, $completedCount))
+    .run()
+
   function mapTodoItem(event) {return event.target.parentNode.parentNode}
   function selectTodoText($todo) {$todo.lastElementChild.select()}
 
@@ -91,6 +102,9 @@
 
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
   function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodoItem($todo)}
+
+  function mapCompletedTodos() {return document.querySelectorAll('li.completed')}
+  function each(func) {return function (arr) {[].forEach.call(arr, func)}}
 
   // TODO hide completed 
 
