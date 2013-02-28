@@ -33,8 +33,7 @@
 
   // TODO toggle complete on click
 
-  on($itemList, 'click')
-    (filterDestroyButton)
+  on($itemList, 'click', 'button.destroy')
     (deleteTodoItem)
     (updateTodoCount)
     (pluralizeTodoCount)
@@ -44,10 +43,6 @@
     .run()
 
 
-  function filterDestroyButton(event) {
-    if (event.target.tagName.toLowerCase() !== 'button' || event.target.className !== 'destroy') this.cancel()
-    return event
-  }
   function deleteTodoItem(event) {
     var todoItem = event.target.parentNode.parentNode
     todoItem.parentNode.removeChild(todoItem)
@@ -96,9 +91,24 @@
   function show(elem) {return function () {elem.style.display = elem.origDisplay || 'block'}}
   function setClass(elem, className) {elem.className = className}
 
-  function on(elem, eventType) {
+  function on(elem, eventType, delegateSelector) {
     return chain() 
       (function (done) {elem.addEventListener(eventType, function (event) {done(event)}, false)})
+      (function (event) {
+        if (delegateSelector && !matchesQuerySelector(event.target, delegateSelector)) this.cancel()
+        return event
+      })
   }
+  function matchesQuerySelector($elem, selector) {
+    if (!selector) return false
+    if (selector.indexOf('.') >= 0) return matches($elem, selector.split('.'), 'className')
+    else if (selector.indexOf('#') >= 0) return matches($elem, selector.split('#'), 'id')
+    else return ($elem.tagName.toLowerCase() === selector)
+  }
+  function matches($elem, parts, key) {
+    if ( (parts[0] && $elem.tagName.toLowerCase() !== parts[0]) || $elem[key] !== parts[1]) return false
+    else return true
+  }
+
 
 })( window );
