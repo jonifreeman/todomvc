@@ -4,11 +4,11 @@
   var $main = $('main')
     , $footer = $('footer')
     , $input = $('new-todo')
-    , $itemList = $('todo-list')
+    , $todoList = $('todo-list')
     , $todoCountWrapper = $('todo-count')
     , $completedCount = $('clear-completed')
     , $todoCount = $todoCountWrapper.firstElementChild
-    , $itemTemplate = $itemList.firstElementChild
+    , $todoTemplate = $todoList.firstElementChild
 
   var ENTER = 13
 
@@ -16,7 +16,7 @@
     (hide($main))
     (hide($footer))
     (hide($completedCount))
-    (function () {$itemList.removeChild($itemTemplate)})
+    (function () {$todoList.removeChild($todoTemplate)})
     .run()
 
   on($input, 'keyup')
@@ -33,14 +33,14 @@
     (pluralizeTodoCount)
     .run()
 
-  on($itemList, 'click', 'input.toggle')
+  on($todoList, 'click', 'input.toggle')
     (mapTodoItem)
     (toggleTodo('completed'))
     (updateCompletedCount)
     (toggleVisibility($completedCount, $completedCount))
     .run()
 
-  on($itemList, 'click', 'button.destroy')
+  on($todoList, 'click', 'button.destroy')
     (mapTodoItem)
     (deleteTodoItem)
     (updateTodoCount)
@@ -51,13 +51,13 @@
     (toggleVisibility($completedCount, $completedCount))
     .run()
 
-  on($itemList, 'dblclick', 'label')
+  on($todoList, 'dblclick', 'label')
     (mapTodoItem)
     (toggleTodo('editing'))
     (selectTodoText)
     .run()
 
-  on($itemList, 'keyup', 'input.edit')
+  on($todoList, 'keyup', 'input.edit')
     (filterKeyCode(ENTER))
     (eventTarget)
     (pair(parent, inputValue))
@@ -73,15 +73,15 @@
     .run()
 
   function mapTodoItem(event) {return event.target.parentNode.parentNode}
-  function selectTodoText($todoItem) {$todoItem.lastElementChild.select()}
+  function selectTodoText($todo) {$todo.lastElementChild.select()}
 
-  function toggleTodo(className) {return function ($todoItem) {
-    if (hasClass($todoItem, className)) removeClass($todoItem, className)
-    else addClass($todoItem, className)
-    return $todoItem
+  function toggleTodo(className) {return function ($todo) {
+    if (hasClass($todo, className)) removeClass($todo, className)
+    else addClass($todo, className)
+    return $todo
   }}
 
-  function deleteTodoItem($todoItem) {$todoItem.parentNode.removeChild($todoItem)}
+  function deleteTodoItem($todo) {$todo.parentNode.removeChild($todo)}
   function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
   function toggleVisibility($elem, $count) {return function () {
     if (toInt($count.innerHTML) > 0) show($elem)()
@@ -107,7 +107,7 @@
     return value
   }
   function createTodo(text) {
-    var $todo = $itemTemplate.cloneNode(true)
+    var $todo = $todoTemplate.cloneNode(true)
     return updateTodo($todo, text)
   }
   function updateTodo($todo, text) {
@@ -118,10 +118,10 @@
   function clearInputValue() {$input.value = ''}
   function setTodoLabel($todo, text) {$todo.children[0].children[1].innerHTML = text}
   function setTodoEditValue($todo, text) {$todo.children[1].setAttribute('value', text)}
-  function addTodoToList($todo) {$itemList.appendChild($todo)}
-  function updateTodoCount() {$todoCount.innerHTML = $itemList.children.length}
+  function addTodoToList($todo) {$todoList.appendChild($todo)}
+  function updateTodoCount() {$todoCount.innerHTML = $todoList.children.length}
   function pluralizeTodoCount() {
-    if ($itemList.children.length === 1) removeClass($todoCountWrapper, 'plural')
+    if ($todoList.children.length === 1) removeClass($todoCountWrapper, 'plural')
     else addClass($todoCountWrapper, 'plural')
   }
 
