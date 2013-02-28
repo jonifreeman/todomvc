@@ -31,7 +31,11 @@
     (pluralizeTodoCount)
     .run()
 
-  // TODO toggle complete on click
+  on($itemList, 'click', 'input.toggle')
+    (toggleTodoCompleted)
+    (updateCompletedCount)
+    (toggleVisibility($completedCount, $completedCount))
+    .run()
 
   on($itemList, 'click', 'button.destroy')
     (deleteTodoItem)
@@ -42,6 +46,11 @@
     (updateCompletedCount)
     .run()
 
+  function toggleTodoCompleted(event) {
+    var $todoItem = event.target.parentNode.parentNode
+    if (hasClass($todoItem, 'completed')) setClass($todoItem, '')
+    else setClass($todoItem, 'completed')
+  }
 
   function deleteTodoItem(event) {
     var todoItem = event.target.parentNode.parentNode
@@ -89,6 +98,7 @@
     elem.style.display = 'none'
   }}
   function show(elem) {return function () {elem.style.display = elem.origDisplay || 'block'}}
+  function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
   function setClass(elem, className) {elem.className = className}
 
   function on(elem, eventType, delegateSelector) {
