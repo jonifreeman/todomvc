@@ -127,7 +127,7 @@
 
   function $(id) {return document.getElementById(id)}
   function hide(elem) {return function () {
-    elem.origDisplay = elem.style.display
+    if (!elem.origDisplay) elem.origDisplay = elem.style.display
     elem.style.display = 'none'
   }}
   function show(elem) {return function () {elem.style.display = elem.origDisplay || 'block'}}
