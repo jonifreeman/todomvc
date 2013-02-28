@@ -14,10 +14,7 @@ function chain() {
       , params = slice(arguments, skipFirst)
       , restOfQueue = queue.slice(skipFirst)
       , func = queue[0]
-      , ctx = {
-          shouldContinue: true
-        , cancel: function () {this.shouldContinue = false}
-        }
+      , ctx = {shouldContinue: true, cancel: function () {this.shouldContinue = false}}
     if (isAsync(func, params)) {
       func.apply(ctx, params.concat([doneCallback(ctx, restOfQueue)]))
     } else {
