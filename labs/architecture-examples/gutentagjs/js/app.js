@@ -21,6 +21,7 @@
 
   on($input, 'keyup')
     (filterKeyCode(ENTER))
+    (eventTarget)
     (inputValue)
     (filterNonEmpty)
     (createTodo)
@@ -34,7 +35,7 @@
 
   on($itemList, 'click', 'input.toggle')
     (mapTodoItem)
-    (toggleTodoCompleted)
+    (toggleTodo('completed'))
     (updateCompletedCount)
     (toggleVisibility($completedCount, $completedCount))
     .run()
@@ -52,22 +53,33 @@
 
   on($itemList, 'dblclick', 'label')
     (mapTodoItem)
-    (makeEditable)
+    (toggleTodo('editing'))
     (selectTodoText)
     .run()
 
+  on($itemList, 'keyup', 'input.edit')
+    (filterKeyCode(ENTER))
+    (eventTarget)
+    (pair(parent, inputValue))
+    (updateTodo)
+    (toggleTodo('editing'))
+    (deleteEmptyTodo)
+    (updateTodoCount)
+    (pluralizeTodoCount)
+    (toggleVisibility($main, $todoCount))
+    (toggleVisibility($footer, $todoCount))
+    (updateCompletedCount)
+    (toggleVisibility($completedCount, $completedCount))
+    .run()
 
   function mapTodoItem(event) {return event.target.parentNode.parentNode}
-  function makeEditable($todoItem) {
-    setClass($todoItem, 'editing')
-    return $todoItem
-  }
   function selectTodoText($todoItem) {$todoItem.lastElementChild.select()}
 
-  function toggleTodoCompleted($todoItem) {
-    if (hasClass($todoItem, 'completed')) setClass($todoItem, '')
-    else setClass($todoItem, 'completed')
-  }
+  function toggleTodo(className) {return function ($todoItem) {
+    if (hasClass($todoItem, className)) removeClass($todoItem, className)
+    else addClass($todoItem, className)
+    return $todoItem
+  }}
 
   function deleteTodoItem($todoItem) {$todoItem.parentNode.removeChild($todoItem)}
   function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
@@ -77,20 +89,28 @@
   }}
   function toInt(x) {return +x}
 
-  // TODO edit on double click
+  function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
+  function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodoItem($todo)}
 
   // TODO hide completed 
 
   // TODO router (all/active/completed)
 
-  function filterKeyCode(code) {return function (event) {if (code !== event.which) this.cancel()}}
-  function inputValue() {return $input.value.trim()}
+  function filterKeyCode(code) {return function (event) {
+    if (code !== event.which) this.cancel()
+    return event
+  }}
+  function eventTarget(event) {return event.target}
+  function inputValue($input) {return $input.value.trim()}
   function filterNonEmpty(value) {
     if (value.length === 0) this.cancel()
     return value
   }
   function createTodo(text) {
     var $todo = $itemTemplate.cloneNode(true)
+    return updateTodo($todo, text)
+  }
+  function updateTodo($todo, text) {
     setTodoLabel($todo, text)
     setTodoEditValue($todo, text)
     return $todo
@@ -101,8 +121,8 @@
   function addTodoToList($todo) {$itemList.appendChild($todo)}
   function updateTodoCount() {$todoCount.innerHTML = $itemList.children.length}
   function pluralizeTodoCount() {
-    if ($itemList.children.length === 1) setClass($todoCountWrapper, '')
-    else setClass($todoCountWrapper, 'plural')
+    if ($itemList.children.length === 1) removeClass($todoCountWrapper, 'plural')
+    else addClass($todoCountWrapper, 'plural')
   }
 
   function $(id) {return document.getElementById(id)}
@@ -112,7 +132,9 @@
   }}
   function show(elem) {return function () {elem.style.display = elem.origDisplay || 'block'}}
   function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
-  function setClass(elem, className) {elem.className = className}
+  function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
+  function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
+  function parent($elem) {return $elem.parentNode}
 
   function on(elem, eventType, delegateSelector) {
     return chain() 
