@@ -27,28 +27,19 @@
     (createTodo)
     (addTodoToList)
     (clearInputValue)
-    (show($main))
-    (show($footer))
-    (updateTodoCount)
-    (pluralizeTodoCount)
+    (updateDomToReflectCurrentCounts)
     .run()
 
   on($todoList, 'click', 'input.toggle')
     (mapTodoItem)
     (toggleTodo('completed'))
-    (updateCompletedCount)
-    (toggleVisibility($completedCount, $completedCount))
+    (updateDomToReflectCurrentCounts)
     .run()
 
   on($todoList, 'click', 'button.destroy')
     (mapTodoItem)
     (deleteTodoItem)
-    (updateTodoCount)
-    (pluralizeTodoCount)
-    (toggleVisibility($main, $todoCount))
-    (toggleVisibility($footer, $todoCount))
-    (updateCompletedCount)
-    (toggleVisibility($completedCount, $completedCount))
+    (updateDomToReflectCurrentCounts)
     .run()
 
   on($todoList, 'dblclick', 'label')
@@ -64,24 +55,23 @@
     (updateTodo)
     (toggleTodo('editing'))
     (deleteEmptyTodo)
-    (updateTodoCount)
-    (pluralizeTodoCount)
-    (toggleVisibility($main, $todoCount))
-    (toggleVisibility($footer, $todoCount))
-    (updateCompletedCount)
-    (toggleVisibility($completedCount, $completedCount))
+    (updateDomToReflectCurrentCounts)
     .run()
 
   on($completedCount, 'click')
     (mapCompletedTodos)
     (each(deleteTodoItem))
+    (updateDomToReflectCurrentCounts)
+    .run()
+
+  var countAndVisibilityDomUpdates = chain() 
     (updateTodoCount)
     (pluralizeTodoCount)
     (toggleVisibility($main, $todoCount))
     (toggleVisibility($footer, $todoCount))
     (updateCompletedCount)
     (toggleVisibility($completedCount, $completedCount))
-    .run()
+  function updateDomToReflectCurrentCounts() {countAndVisibilityDomUpdates.run()}
 
   function mapTodoItem(event) {return event.target.parentNode.parentNode}
   function selectTodoText($todo) {$todo.lastElementChild.select()}
@@ -138,11 +128,8 @@
   }
 
   function $(id) {return document.getElementById(id)}
-  function hide(elem) {return function () {
-    if (!elem.origDisplay) elem.origDisplay = elem.style.display
-    elem.style.display = 'none'
-  }}
-  function show(elem) {return function () {elem.style.display = elem.origDisplay || 'block'}}
+  function hide($elem) {return function () {$elem.style.display = 'none'}}
+  function show($elem) {return function () {$elem.style.display = 'block'}}
   function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
   function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
   function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
@@ -166,6 +153,5 @@
     if ( (parts[0] && $elem.tagName.toLowerCase() !== parts[0]) || $elem[key] !== parts[1]) return false
     else return true
   }
-
 
 })( window );
