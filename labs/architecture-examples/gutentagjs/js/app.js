@@ -47,6 +47,7 @@
     (toggleVisibility($main, $todoCount))
     (toggleVisibility($footer, $todoCount))
     (updateCompletedCount)
+    (toggleVisibility($completedCount, $completedCount))
     .run()
 
   on($itemList, 'dblclick', 'label')
