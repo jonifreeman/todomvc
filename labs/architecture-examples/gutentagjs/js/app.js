@@ -25,6 +25,7 @@
     (filterNonEmpty)
     (createTodo)
     (addTodoToList)
+    (clearInputValue)
     (show($main))
     (show($footer))
     (updateTodoCount)
@@ -32,12 +33,14 @@
     .run()
 
   on($itemList, 'click', 'input.toggle')
+    (mapTodoItem)
     (toggleTodoCompleted)
     (updateCompletedCount)
     (toggleVisibility($completedCount, $completedCount))
     .run()
 
   on($itemList, 'click', 'button.destroy')
+    (mapTodoItem)
     (deleteTodoItem)
     (updateTodoCount)
     (pluralizeTodoCount)
@@ -46,23 +49,31 @@
     (updateCompletedCount)
     .run()
 
-  function toggleTodoCompleted(event) {
-    var $todoItem = event.target.parentNode.parentNode
+  on($itemList, 'dblclick', 'label')
+    (mapTodoItem)
+    (makeEditable)
+    (selectTodoText)
+    .run()
+
+
+  function mapTodoItem(event) {return event.target.parentNode.parentNode}
+  function makeEditable($todoItem) {
+    setClass($todoItem, 'editing')
+    return $todoItem
+  }
+  function selectTodoText($todoItem) {$todoItem.lastElementChild.select()}
+
+  function toggleTodoCompleted($todoItem) {
     if (hasClass($todoItem, 'completed')) setClass($todoItem, '')
     else setClass($todoItem, 'completed')
   }
 
-  function deleteTodoItem(event) {
-    var todoItem = event.target.parentNode.parentNode
-    todoItem.parentNode.removeChild(todoItem)
-  }
+  function deleteTodoItem($todoItem) {$todoItem.parentNode.removeChild($todoItem)}
   function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
-  function toggleVisibility($elem, $count) {
-    return function () {
-      if (toInt($count.innerHTML) > 0) show($elem)()
-      else hide($elem)()
-    }
-  }
+  function toggleVisibility($elem, $count) {return function () {
+    if (toInt($count.innerHTML) > 0) show($elem)()
+    else hide($elem)()
+  }}
   function toInt(x) {return +x}
 
   // TODO edit on double click
@@ -83,6 +94,7 @@
     setTodoEditValue($todo, text)
     return $todo
   }
+  function clearInputValue() {$input.value = ''}
   function setTodoLabel($todo, text) {$todo.children[0].children[1].innerHTML = text}
   function setTodoEditValue($todo, text) {$todo.children[1].setAttribute('value', text)}
   function addTodoToList($todo) {$itemList.appendChild($todo)}
