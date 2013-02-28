@@ -106,8 +106,6 @@
   function mapCompletedTodos() {return document.querySelectorAll('li.completed')}
   function each(func) {return function (arr) {[].forEach.call(arr, func)}}
 
-  // TODO hide completed 
-
   // TODO router (all/active/completed)
 
   function filterKeyCode(code) {return function (event) {
