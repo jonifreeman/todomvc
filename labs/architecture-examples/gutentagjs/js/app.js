@@ -19,7 +19,7 @@
     (hide($main))
     (hide($footer))
     (hide($completedCount))
-    (use($todoTemplate))
+    (just($todoTemplate))
     (deleteTodo)
     .run()
 
@@ -181,5 +181,5 @@
   function keyup($elem, delegateSelector) {return on($elem, 'keyup', delegateSelector)}
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
   function each(func) {return function (arr) {[].forEach.call(arr, func)}}
-  function use(x) {return function () {return x}}
+  function just(x) {return function () {return x}}
 })();
