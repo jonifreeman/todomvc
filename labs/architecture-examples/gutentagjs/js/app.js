@@ -76,14 +76,15 @@
     (updateDomToReflectCurrentCounts)
     .run()
 
-  var countAndVisibilityDomUpdates = chain() 
-    (updateTodoCount)
-    (pluralizeTodoCount)
-    (toggleVisibility($main, todoElem))
-    (toggleVisibility($footer, todoElem))
-    (updateCompletedCount)
-    (toggleVisibility($completedCount, completedTodo))
-    (markCompleteAll)
+  var countAndVisibilityDomUpdates = 
+    chain() 
+      (updateTodoCount)
+      (pluralizeTodoCount)
+      (toggleVisibility($main, todoElem))
+      (toggleVisibility($footer, todoElem))
+      (updateCompletedCount)
+      (toggleVisibility($completedCount, completedTodo))
+      (markCompleteAll)
 
   function updateDomToReflectCurrentCounts() {countAndVisibilityDomUpdates.run()}
 
