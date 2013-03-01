@@ -1,14 +1,17 @@
 (function() {
 	'use strict';
 
-  var $main = $('#main')
+  var todoElem = '#todo-list li'
+    , completedTodo = 'li.completed'
+    , $main = $('#main')
     , $footer = $('#footer')
     , $input = $('#new-todo')
     , $todoList = $('#todo-list')
     , $todoCountWrapper = $('#todo-count')
     , $completedCount = $('#clear-completed')
     , $todoCount = $('#todo-count strong')
-    , $todoTemplate = $('#todo-list li')
+    , $todoTemplate = $(todoElem)
+    , $completeAll = $('#toggle-all')
 
   var ENTER = 13
 
@@ -59,18 +62,28 @@
     .run()
 
   click($completedCount)
-    (mapCompletedTodos)
+    (findAll(completedTodo))
     (each(deleteTodo))
+    (updateDomToReflectCurrentCounts)
+    .run()
+
+  click($completeAll)
+    (findAll(todoElem))
+    (each(markCompletion))
+    (findAll('input.toggle'))
+    (each(markCheckbox))
     (updateDomToReflectCurrentCounts)
     .run()
 
   var countAndVisibilityDomUpdates = chain() 
     (updateTodoCount)
     (pluralizeTodoCount)
-    (toggleVisibility($main, $todoCount))
-    (toggleVisibility($footer, $todoCount))
+    (toggleVisibility($main, todoElem))
+    (toggleVisibility($footer, todoElem))
     (updateCompletedCount)
-    (toggleVisibility($completedCount, $completedCount))
+    (toggleVisibility($completedCount, completedTodo))
+    (markCompleteAll)
+
   function updateDomToReflectCurrentCounts() {countAndVisibilityDomUpdates.run()}
 
   function mapTodo(event) {return event.target.parentNode.parentNode}
@@ -84,8 +97,8 @@
 
   function deleteTodo($todo) {$todo.parentNode.removeChild($todo)}
   function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
-  function toggleVisibility($elem, $count) {return function () {
-    if (toInt($count.innerHTML) > 0) show($elem)()
+  function toggleVisibility($elem, selector) {return function () {
+    if (countAll(selector) > 0) show($elem)()
     else hide($elem)()
   }}
   function toInt(x) {return +x}
@@ -93,8 +106,18 @@
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
   function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodo($todo)}
 
-  function mapCompletedTodos() {return document.querySelectorAll('li.completed')}
   function each(func) {return function (arr) {[].forEach.call(arr, func)}}
+  function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
+  function countAll(selector) {return document.querySelectorAll(selector).length}
+
+  function mapChecked(event) {return event.target.checked}
+  function markCompletion($todo) {
+    if ($completeAll.checked) addClass($todo, 'completed')
+    else removeClass($todo, 'completed')    
+  }
+  function markCheckbox($box) {$box.checked = ($completeAll.checked? true: false)}
+  function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0? true: false)}
+  function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
   // TODO router (all/active/completed)
 
@@ -121,9 +144,9 @@
   function setTodoLabel($todo, text) {$todo.children[0].children[1].innerHTML = text}
   function setTodoEditValue($todo, text) {$todo.children[1].setAttribute('value', text)}
   function addTodoToList($todo) {$todoList.appendChild($todo)}
-  function updateTodoCount() {$todoCount.innerHTML = $todoList.children.length}
+  function updateTodoCount() {$todoCount.innerHTML = numActiveTodos()}
   function pluralizeTodoCount() {
-    if ($todoList.children.length === 1) removeClass($todoCountWrapper, 'plural')
+    if (numActiveTodos() === 1) removeClass($todoCountWrapper, 'plural')
     else addClass($todoCountWrapper, 'plural')
   }
 
