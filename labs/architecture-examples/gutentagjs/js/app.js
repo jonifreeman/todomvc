@@ -23,7 +23,7 @@
     .run()
 
   keyup($input)
-    (filterKeyCode(ENTER))
+    (filterKey(ENTER))
     (eventTarget)
     (inputValue)
     (filterNonEmpty)
@@ -52,7 +52,7 @@
     .run()
 
   keyup($todoList, 'input.edit')
-    (filterKeyCode(ENTER))
+    (filterKey(ENTER))
     (eventTarget)
     (pair(parent, inputValue))
     (updateTodo)
@@ -86,29 +86,33 @@
 
   function updateDomToReflectCurrentCounts() {countAndVisibilityDomUpdates.run()}
 
-  function mapTodo(event) {return event.target.parentNode.parentNode}
+  function createTodo(text) {
+    var $todo = $todoTemplate.cloneNode(true)
+    return updateTodo($todo, text)
+  }
+  function updateTodo($todo, text) {
+    setTodoLabel($todo, text)
+    setTodoEditValue($todo, text)
+    return $todo
+  }
+  function setTodoLabel($todo, text) {$todo.children[0].children[1].innerHTML = text}
+  function setTodoEditValue($todo, text) {$todo.children[1].setAttribute('value', text)}
+  function addTodoToList($todo) {$todoList.appendChild($todo)}
   function selectTodoText($todo) {$todo.lastElementChild.select()}
-
-  function toggleClass(className) {return function ($elem) {
-    if (hasClass($elem, className)) removeClass($elem, className)
-    else addClass($elem, className)
-    return $elem
-  }}
-
   function deleteTodo($todo) {$todo.parentNode.removeChild($todo)}
+  function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodo($todo)}
+  function mapTodo(event) {return event.target.parentNode.parentNode}
+
+  function updateTodoCount() {$todoCount.innerHTML = numActiveTodos()}
+  function pluralizeTodoCount() {
+    if (numActiveTodos() === 1) removeClass($todoCountWrapper, 'plural')
+    else addClass($todoCountWrapper, 'plural')
+  }
   function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
   function toggleVisibility($elem, selector) {return function () {
     if (countAll(selector) > 0) show($elem)()
     else hide($elem)()
   }}
-  function toInt(x) {return +x}
-
-  function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
-  function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodo($todo)}
-
-  function each(func) {return function (arr) {[].forEach.call(arr, func)}}
-  function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
-  function countAll(selector) {return document.querySelectorAll(selector).length}
 
   function mapChecked(event) {return event.target.checked}
   function markCompletion($todo) {
@@ -121,42 +125,34 @@
 
   // TODO router (all/active/completed)
 
-  function filterKeyCode(code) {return function (event) {
-    if (code !== event.which) this.cancel()
-    return event
-  }}
   function eventTarget(event) {return event.target}
   function inputValue($input) {return $input.value.trim()}
+  function clearInputValue() {$input.value = ''}
   function filterNonEmpty(value) {
     if (value.length === 0) this.cancel()
     return value
   }
-  function createTodo(text) {
-    var $todo = $todoTemplate.cloneNode(true)
-    return updateTodo($todo, text)
-  }
-  function updateTodo($todo, text) {
-    setTodoLabel($todo, text)
-    setTodoEditValue($todo, text)
-    return $todo
-  }
-  function clearInputValue() {$input.value = ''}
-  function setTodoLabel($todo, text) {$todo.children[0].children[1].innerHTML = text}
-  function setTodoEditValue($todo, text) {$todo.children[1].setAttribute('value', text)}
-  function addTodoToList($todo) {$todoList.appendChild($todo)}
-  function updateTodoCount() {$todoCount.innerHTML = numActiveTodos()}
-  function pluralizeTodoCount() {
-    if (numActiveTodos() === 1) removeClass($todoCountWrapper, 'plural')
-    else addClass($todoCountWrapper, 'plural')
-  }
+  function filterKey(code) {return function (event) {
+    if (code !== event.which) this.cancel()
+    return event
+  }}
+
+  function toInt(x) {return +x}
 
   function $(cssSelector) {return document.querySelector(cssSelector)}
+  function parent($elem) {return $elem.parentNode}
   function hide($elem) {return function () {$elem.style.display = 'none'}}
   function show($elem) {return function () {$elem.style.display = 'block'}}
   function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
   function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
   function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
-  function parent($elem) {return $elem.parentNode}
+  function toggleClass(className) {return function ($elem) {
+    if (hasClass($elem, className)) removeClass($elem, className)
+    else addClass($elem, className)
+    return $elem
+  }}
+  function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
+  function countAll(selector) {return document.querySelectorAll(selector).length}
 
   function on($elem, eventType, delegateSelector) {
     return chain() 
@@ -177,4 +173,6 @@
   function click($elem, delegateSelector) {return on($elem, 'click', delegateSelector)}
   function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
   function keyup($elem, delegateSelector) {return on($elem, 'keyup', delegateSelector)}
+  function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
+  function each(func) {return function (arr) {[].forEach.call(arr, func)}}
 })();
