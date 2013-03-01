@@ -32,7 +32,7 @@
 
   on($todoList, 'click', 'input.toggle')
     (mapTodo)
-    (toggleTodo('completed'))
+    (toggleClass('completed'))
     (updateDomToReflectCurrentCounts)
     .run()
 
@@ -44,7 +44,7 @@
 
   on($todoList, 'dblclick', 'label')
     (mapTodo)
-    (toggleTodo('editing'))
+    (toggleClass('editing'))
     (selectTodoText)
     .run()
 
@@ -53,7 +53,7 @@
     (eventTarget)
     (pair(parent, inputValue))
     (updateTodo)
-    (toggleTodo('editing'))
+    (toggleClass('editing'))
     (deleteEmptyTodo)
     (updateDomToReflectCurrentCounts)
     .run()
@@ -76,10 +76,10 @@
   function mapTodo(event) {return event.target.parentNode.parentNode}
   function selectTodoText($todo) {$todo.lastElementChild.select()}
 
-  function toggleTodo(className) {return function ($todo) {
-    if (hasClass($todo, className)) removeClass($todo, className)
-    else addClass($todo, className)
-    return $todo
+  function toggleClass(className) {return function ($elem) {
+    if (hasClass($elem, className)) removeClass($elem, className)
+    else addClass($elem, className)
+    return $elem
   }}
 
   function deleteTodo($todo) {$todo.parentNode.removeChild($todo)}
