@@ -97,12 +97,12 @@
     setTodoEditValue($todo, text)
     return $todo
   }
-  function setTodoLabel($todo, text) {$todo.children[0].children[1].innerHTML = text}
-  function setTodoEditValue($todo, text) {$todo.children[1].setAttribute('value', text)}
+  function setTodoLabel($todo, text) {$todo.querySelector('label').innerHTML = text}
+  function setTodoEditValue($todo, text) {$todo.querySelector('input.edit').setAttribute('value', text)}
   function addTodoToList($todo) {$todoList.appendChild($todo)}
   function selectTodoText($todo) {$todo.lastElementChild.select()}
   function deleteTodo($todo) {$todo.parentNode.removeChild($todo)}
-  function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodo($todo)}
+  function deleteEmptyTodo($todo) {if (!$todo.querySelector('label').innerHTML) deleteTodo($todo)}
   function mapTodo(event) {return event.target.parentNode.parentNode}
 
   function updateTodoCount() {$todoCount.innerHTML = numActiveTodos()}
