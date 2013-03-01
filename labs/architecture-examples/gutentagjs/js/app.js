@@ -1,4 +1,4 @@
-(function( window ) {
+(function() {
 	'use strict';
 
   var $main = $('main')
@@ -149,9 +149,5 @@
     else if (selector.indexOf('#') >= 0) return matches($elem, selector.split('#'), 'id')
     else return ($elem.tagName.toLowerCase() === selector)
   }
-  function matches($elem, parts, key) {
-    if ( (parts[0] && $elem.tagName.toLowerCase() !== parts[0]) || $elem[key] !== parts[1]) return false
-    else return true
-  }
-
-})( window );
+  function matches($elem, parts, key) {return (!parts[0] || $elem.tagName.toLowerCase() === parts[0]) && $elem[key] === parts[1]}
+})();
