@@ -12,6 +12,7 @@
     , $todoCount = $('#todo-count strong')
     , $todoTemplate = $(todoElem)
     , $completeAll = $('#toggle-all')
+    , $filters = $('#filters')
 
   var ENTER = 13
 
@@ -80,7 +81,7 @@
     (updateDomToReflectCurrentCounts)
     .run()
 
-  click($('#filters'), 'a')
+  click($filters, 'a')
     (eventTarget)
     (clearBodyClasses)
     (addLinkClassToBody)
