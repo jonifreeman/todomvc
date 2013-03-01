@@ -12,9 +12,9 @@ function chain() {
     if (queue.length === 0) return 
     var skipFirst = 1
       , params = slice(arguments, skipFirst)
-      , restOfQueue = queue.slice(skipFirst)
+      , restOfQueue = slice(queue, skipFirst)
       , func = queue[0]
-      , ctx = {shouldContinue: true, cancel: function () {this.shouldContinue = false}}
+      , ctx = {shouldContinue: true, cancel: function () {ctx.shouldContinue = false}}
     if (isAsync(func, params)) {
       func.apply(ctx, params.concat([doneCallback(ctx, restOfQueue)]))
     } else {
@@ -24,7 +24,7 @@ function chain() {
   }
   // if function has more params than we are passing in, it has a 'done' param, thus is treated as asynchronous
   function isAsync(func, params) {return func.length > params.length}  
-  function slice(x, skipFromBeginning) {return [].slice.call(x, skipFromBeginning)}
+  function slice(x, skipFromBeginning) {return Array.prototype.slice.call(x, skipFromBeginning)}
   function doneCallback(ctx, queue) {return function (/*...*/) {
     if (ctx.shouldContinue) run.apply(withoutContext, [queue].concat(slice(arguments)))
   }}
