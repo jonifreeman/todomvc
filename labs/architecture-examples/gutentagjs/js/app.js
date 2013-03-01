@@ -23,13 +23,6 @@
     (deleteTodo)
     .run()
 
-  click(document.body)
-    (eventTarget)
-    (ignore('input.edit'))
-    (findAll('li.editing'))
-    (each(toggleClass('editing')))
-    .run()
-
   keyup($input)
     (filterKey(ENTER))
     (eventTarget)
@@ -62,11 +55,15 @@
   keyup($todoList, 'input.edit')
     (filterKey(ENTER))
     (eventTarget)
-    (pair(parent, inputValue))
-    (updateTodo)
-    (toggleClass('editing'))
-    (deleteEmptyTodo)
-    (updateDomToReflectCurrentCounts)
+    (updateTodoAndCloseEditMode)
+    .run()
+
+  click(document)
+    (eventTarget)
+    (ignore('input.edit'))
+    (find('li.editing input.edit'))
+    (filterNonEmpty)
+    (updateTodoAndCloseEditMode)
     .run()
 
   click($completedCount)
@@ -94,6 +91,17 @@
       (markCompleteAll)
 
   function updateDomToReflectCurrentCounts() {countAndVisibilityDomUpdates.run()}
+
+  function updateTodoAndCloseEditMode($todoEditField) {
+    chain()
+      (just($todoEditField))
+      (pair(parent, inputValue))
+      (updateTodo)
+      (toggleClass('editing'))
+      (deleteEmptyTodo)
+      (updateDomToReflectCurrentCounts)
+      .run()
+  }
 
   function createTodo(text) {
     var $todo = $todoTemplate.cloneNode(true)
@@ -126,19 +134,26 @@
   function mapChecked(event) {return event.target.checked}
   function markCompletion($todo) {
     if ($completeAll.checked) addClass($todo, 'completed')
-    else removeClass($todo, 'completed')    
+    else removeClass($todo, 'completed')
   }
   function markCheckbox($box) {$box.checked = ($completeAll.checked? true: false)}
   function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0? true: false)}
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
-  // TODO router (all/active/completed)
+  function clearBodyClasses($elem) {
+    document.body.className = ''
+    return $elem
+  }
+  function addLinkClassToBody($elem) {
+    addClass(document.body, $elem.href.split('#/')[1])
+    return $elem
+  }
 
   function eventTarget(event) {return event.target}
   function inputValue($input) {return $input.value.trim()}
   function clearInputValue() {$input.value = ''}
   function filterNonEmpty(value) {
-    if (value.length === 0) this.cancel()
+    if (!value || value.length === 0) this.cancel()
     return value
   }
   function filterKey(code) {return function (event) {
@@ -160,6 +175,7 @@
     else addClass($elem, className)
     return $elem
   }}
+  function find(selector) {return function() {return document.querySelector(selector)}}
   function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
 
