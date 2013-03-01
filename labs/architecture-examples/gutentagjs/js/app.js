@@ -31,19 +31,19 @@
     .run()
 
   on($todoList, 'click', 'input.toggle')
-    (mapTodoItem)
+    (mapTodo)
     (toggleTodo('completed'))
     (updateDomToReflectCurrentCounts)
     .run()
 
   on($todoList, 'click', 'button.destroy')
-    (mapTodoItem)
-    (deleteTodoItem)
+    (mapTodo)
+    (deleteTodo)
     (updateDomToReflectCurrentCounts)
     .run()
 
   on($todoList, 'dblclick', 'label')
-    (mapTodoItem)
+    (mapTodo)
     (toggleTodo('editing'))
     (selectTodoText)
     .run()
@@ -60,7 +60,7 @@
 
   on($completedCount, 'click')
     (mapCompletedTodos)
-    (each(deleteTodoItem))
+    (each(deleteTodo))
     (updateDomToReflectCurrentCounts)
     .run()
 
@@ -73,7 +73,7 @@
     (toggleVisibility($completedCount, $completedCount))
   function updateDomToReflectCurrentCounts() {countAndVisibilityDomUpdates.run()}
 
-  function mapTodoItem(event) {return event.target.parentNode.parentNode}
+  function mapTodo(event) {return event.target.parentNode.parentNode}
   function selectTodoText($todo) {$todo.lastElementChild.select()}
 
   function toggleTodo(className) {return function ($todo) {
@@ -82,7 +82,7 @@
     return $todo
   }}
 
-  function deleteTodoItem($todo) {$todo.parentNode.removeChild($todo)}
+  function deleteTodo($todo) {$todo.parentNode.removeChild($todo)}
   function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
   function toggleVisibility($elem, $count) {return function () {
     if (toInt($count.innerHTML) > 0) show($elem)()
@@ -91,7 +91,7 @@
   function toInt(x) {return +x}
 
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
-  function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodoItem($todo)}
+  function deleteEmptyTodo($todo) {if (!$todo.children[0].children[1].innerHTML) deleteTodo($todo)}
 
   function mapCompletedTodos() {return document.querySelectorAll('li.completed')}
   function each(func) {return function (arr) {[].forEach.call(arr, func)}}
