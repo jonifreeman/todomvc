@@ -1,14 +1,14 @@
 (function() {
 	'use strict';
 
-  var $main = $('main')
-    , $footer = $('footer')
-    , $input = $('new-todo')
-    , $todoList = $('todo-list')
-    , $todoCountWrapper = $('todo-count')
-    , $completedCount = $('clear-completed')
-    , $todoCount = $todoCountWrapper.firstElementChild
-    , $todoTemplate = $todoList.firstElementChild
+  var $main = $('#main')
+    , $footer = $('#footer')
+    , $input = $('#new-todo')
+    , $todoList = $('#todo-list')
+    , $todoCountWrapper = $('#todo-count')
+    , $completedCount = $('#clear-completed')
+    , $todoCount = $('#todo-count strong')
+    , $todoTemplate = $('#todo-list li')
 
   var ENTER = 13
 
@@ -127,7 +127,7 @@
     else addClass($todoCountWrapper, 'plural')
   }
 
-  function $(id) {return document.getElementById(id)}
+  function $(cssSelector) {return document.querySelector(cssSelector)}
   function hide($elem) {return function () {$elem.style.display = 'none'}}
   function show($elem) {return function () {$elem.style.display = 'block'}}
   function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
