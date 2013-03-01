@@ -19,7 +19,7 @@
     (function () {$todoList.removeChild($todoTemplate)})
     .run()
 
-  on($input, 'keyup')
+  keyup($input)
     (filterKeyCode(ENTER))
     (eventTarget)
     (inputValue)
@@ -30,25 +30,25 @@
     (updateDomToReflectCurrentCounts)
     .run()
 
-  on($todoList, 'click', 'input.toggle')
+  click($todoList, 'input.toggle')
     (mapTodo)
     (toggleClass('completed'))
     (updateDomToReflectCurrentCounts)
     .run()
 
-  on($todoList, 'click', 'button.destroy')
+  click($todoList, 'button.destroy')
     (mapTodo)
     (deleteTodo)
     (updateDomToReflectCurrentCounts)
     .run()
 
-  on($todoList, 'dblclick', 'label')
+  dblclick($todoList, 'label')
     (mapTodo)
     (toggleClass('editing'))
     (selectTodoText)
     .run()
 
-  on($todoList, 'keyup', 'input.edit')
+  keyup($todoList, 'input.edit')
     (filterKeyCode(ENTER))
     (eventTarget)
     (pair(parent, inputValue))
@@ -58,7 +58,7 @@
     (updateDomToReflectCurrentCounts)
     .run()
 
-  on($completedCount, 'click')
+  click($completedCount)
     (mapCompletedTodos)
     (each(deleteTodo))
     (updateDomToReflectCurrentCounts)
@@ -150,4 +150,8 @@
     else return ($elem.tagName.toLowerCase() === selector)
   }
   function matches($elem, parts, key) {return (!parts[0] || $elem.tagName.toLowerCase() === parts[0]) && $elem[key] === parts[1]}
+
+  function click($elem, delegateSelector) {return on($elem, 'click', delegateSelector)}
+  function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
+  function keyup($elem, delegateSelector) {return on($elem, 'keyup', delegateSelector)}
 })();
