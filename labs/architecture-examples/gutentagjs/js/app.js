@@ -80,6 +80,12 @@
     (updateDomToReflectCurrentCounts)
     .run()
 
+  click($('#filters'), 'a')
+    (eventTarget)
+    (clearBodyClasses)
+    (addLinkClassToBody)
+    .run()
+
   var countAndVisibilityDomUpdates = 
     chain() 
       (updateTodoCount)

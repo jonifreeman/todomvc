@@ -4,3 +4,10 @@
 
 #clear-completed::before {content: 'Clear completed (';}
 #clear-completed::after {content: ')';}
+
+body.completed #todo-list li:not(.completed) {display: none;}
+body.active #todo-list li.completed {display: none;}
+
+body:not(.active):not(.completed) #filters li:nth-child(1) a {font-weight: bold;}
+body.active #filters li:nth-child(2) a {font-weight: bold;}
+body.completed #filters li:nth-child(3) a {font-weight: bold;}
