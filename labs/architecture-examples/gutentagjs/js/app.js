@@ -158,11 +158,15 @@
 
   function on($elem, eventType, delegateSelector) {
     return chain() 
-      (function (done) {$elem.addEventListener(eventType, function (event) {done(event)}, false)})
+      (function (done) {addEventListener($elem, eventType, function (event) {done(event)})})
       (function (event) {
         if (delegateSelector && !matchesQuerySelector(event.target, delegateSelector)) this.cancel()
         return event
       })
+  }
+  function addEventListener($elem, eventType, eventHandlerCallback) {
+    if ($elem.addEventListener) $elem.addEventListener(eventType, eventHandlerCallback, false)
+    else if ($elem.attachEvent) $elem.attachEvent('on' + eventType, eventHandlerCallback)
   }
   function matchesQuerySelector($elem, selector) {
     if (!selector) return false
