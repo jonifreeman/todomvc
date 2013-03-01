@@ -23,6 +23,13 @@
     (deleteTodo)
     .run()
 
+  click(document.body)
+    (eventTarget)
+    (ignore('input.edit'))
+    (findAll('li.editing'))
+    (each(toggleClass('editing')))
+    .run()
+
   keyup($input)
     (filterKey(ENTER))
     (eventTarget)
@@ -175,6 +182,10 @@
     else return ($elem.tagName.toLowerCase() === selector)
   }
   function matches($elem, parts, key) {return (!parts[0] || $elem.tagName.toLowerCase() === parts[0]) && $elem[key] === parts[1]}
+  function ignore(selector) {return function ($elem) {
+    if (matchesQuerySelector($elem, selector)) this.cancel()
+    return $elem
+  }}
 
   function click($elem, delegateSelector) {return on($elem, 'click', delegateSelector)}
   function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
