@@ -110,7 +110,7 @@
     if (numActiveTodos() === 1) removeClass($todoCountWrapper, 'plural')
     else addClass($todoCountWrapper, 'plural')
   }
-  function updateCompletedCount() {$completedCount.innerHTML = document.getElementsByClassName('completed').length}
+  function updateCompletedCount() {$completedCount.innerHTML = countAll(completedTodo)}
   function toggleVisibility($elem, selector) {return function () {
     if (countAll(selector) > 0) show($elem)()
     else hide($elem)()
