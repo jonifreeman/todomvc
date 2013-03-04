@@ -128,44 +128,23 @@
   function mapTodo(event) {return event.target.parentNode.parentNode}
 
   function updateTodoCount() {$todoCount.innerHTML = numActiveTodos()}
-  function pluralizeTodoCount() {
-    if (numActiveTodos() === 1) removeClass($todoCountWrapper, 'plural')
-    else addClass($todoCountWrapper, 'plural')
-  }
+  function pluralizeTodoCount() {numActiveTodos() === 1? removeClass($todoCountWrapper, 'plural'): addClass($todoCountWrapper, 'plural');}
   function updateCompletedCount() {$completedCount.innerHTML = countAll(completedTodo)}
-  function toggleVisibility($elem, selector) {return function () {
-    if (countAll(selector) > 0) show($elem)()
-    else hide($elem)()
-  }}
+  function toggleVisibility($elem, selector) {return function () {countAll(selector) > 0? show($elem)(): hide($elem)()}}
 
-  function markCompletion($todo) {
-    if ($completeAll.checked) addClass($todo, 'completed')
-    else removeClass($todo, 'completed')
-  }
+  function markCompletion($todo) {$completeAll.checked? addClass($todo, 'completed'): removeClass($todo, 'completed')}
   function markCheckbox($box) {$box.checked = ($completeAll.checked? true: false)}
   function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0)}
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
-  function clearBodyClasses($elem) {
-    document.body.className = ''
-    return $elem
-  }
-  function addLinkClassToBody($elem) {
-    addClass(document.body, $elem.href.split('#/')[1])
-    return $elem
-  }
+  function clearBodyClasses($elem) {document.body.className = ''; return $elem}
+  function addLinkClassToBody($elem) {addClass(document.body, $elem.href.split('#/')[1]); return $elem}
 
   function eventTarget(event) {return event.target}
   function inputValue($input) {return $input.value.trim()}
   function clearInputValue() {$input.value = ''}
-  function filterNonEmpty(value) {
-    if (!value || value.length === 0) this.cancel()
-    return value
-  }
-  function filterKey(code) {return function (event) {
-    if (code !== event.which) this.cancel()
-    return event
-  }}
+  function filterNonEmpty(value) {if (!value || value.length === 0) this.cancel(); return value}
+  function filterKey(code) {return function (event) {if (code !== event.which) this.cancel(); return event}}
 
   function $(cssSelector) {return document.querySelector(cssSelector)}
   function parent($elem) {return $elem.parentNode}
@@ -174,11 +153,7 @@
   function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
   function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
   function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
-  function toggleClass(className) {return function ($elem) {
-    if (hasClass($elem, className)) removeClass($elem, className)
-    else addClass($elem, className)
-    return $elem
-  }}
+  function toggleClass(className) {return function ($elem) {hasClass($elem, className)? removeClass($elem, className): addClass($elem, className); return $elem}}
   function find(selector) {return function() {return document.querySelector(selector)}}
   function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
@@ -202,10 +177,7 @@
     else return ($elem.tagName.toLowerCase() === selector)
   }
   function matches($elem, parts, key) {return (!parts[0] || $elem.tagName.toLowerCase() === parts[0]) && $elem[key] === parts[1]}
-  function ignore(selector) {return function ($elem) {
-    if (matchesQuerySelector($elem, selector)) this.cancel()
-    return $elem
-  }}
+  function ignore(selector) {return function ($elem) {if (matchesQuerySelector($elem, selector)) this.cancel(); return $elem}}
 
   function click($elem, delegateSelector) {return on($elem, 'click', delegateSelector)}
   function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
