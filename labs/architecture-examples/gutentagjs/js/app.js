@@ -138,7 +138,6 @@
     else hide($elem)()
   }}
 
-  function mapChecked(event) {return event.target.checked}
   function markCompletion($todo) {
     if ($completeAll.checked) addClass($todo, 'completed')
     else removeClass($todo, 'completed')
@@ -167,8 +166,6 @@
     if (code !== event.which) this.cancel()
     return event
   }}
-
-  function toInt(x) {return +x}
 
   function $(cssSelector) {return document.querySelector(cssSelector)}
   function parent($elem) {return $elem.parentNode}
