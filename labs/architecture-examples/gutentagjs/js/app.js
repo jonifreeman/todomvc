@@ -143,7 +143,7 @@
     else removeClass($todo, 'completed')
   }
   function markCheckbox($box) {$box.checked = ($completeAll.checked? true: false)}
-  function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0? true: false)}
+  function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0)}
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
   function clearBodyClasses($elem) {
