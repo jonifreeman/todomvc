@@ -32,19 +32,16 @@
     (createTodo)
     (addTodoToList)
     (clearInputValue)
-    (updateDomToReflectCurrentCounts)
     .run()
 
   click($todoList, 'input.toggle')
     (mapTodo)
     (toggleClass('completed'))
-    (updateDomToReflectCurrentCounts)
     .run()
 
   click($todoList, 'button.destroy')
     (mapTodo)
     (deleteTodo)
-    (updateDomToReflectCurrentCounts)
     .run()
 
   dblclick($todoList, 'label')
@@ -70,7 +67,6 @@
   click($completedCount)
     (findAll(completedTodo))
     (each(deleteTodo))
-    (updateDomToReflectCurrentCounts)
     .run()
 
   click($completeAll)
@@ -78,7 +74,6 @@
     (each(markCompletion))
     (findAll('input.toggle'))
     (each(markCheckbox))
-    (updateDomToReflectCurrentCounts)
     .run()
 
   click($filters, 'a')
@@ -87,17 +82,15 @@
     (addLinkClassToBody)
     .run()
 
-  var countAndVisibilityDomUpdates = 
-    chain() 
-      (updateTodoCount)
-      (pluralizeTodoCount)
-      (toggleVisibility($main, todoElem))
-      (toggleVisibility($footer, todoElem))
-      (updateCompletedCount)
-      (toggleVisibility($completedCount, completedTodo))
-      (markCompleteAll)
-
-  function updateDomToReflectCurrentCounts() {countAndVisibilityDomUpdates.run()}
+  domChildrenChange(document.body)
+    (updateTodoCount)
+    (pluralizeTodoCount)
+    (toggleVisibility($main, todoElem))
+    (toggleVisibility($footer, todoElem))
+    (updateCompletedCount)
+    (toggleVisibility($completedCount, completedTodo))
+    (markCompleteAll)
+    .run()
 
   function updateTodoAndCloseEditMode($todoEditField) {
     chain()
@@ -106,7 +99,6 @@
       (updateTodo)
       (toggleClass('editing'))
       (deleteEmptyTodo)
-      (updateDomToReflectCurrentCounts)
       .run()
   }
 
@@ -151,9 +143,10 @@
   function hide($elem) {return function () {$elem.style.display = 'none'}}
   function show($elem) {return function () {$elem.style.display = 'block'}}
   function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
-  function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
-  function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
+  function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className; toggleAttr('force-dom-change-event-hack')(document.body)}
+  function removeClass($elem, className) {$elem.className = $elem.className.replace(className, ''); toggleAttr('force-dom-change-event-hack')(document.body)}
   function toggleClass(className) {return function ($elem) {hasClass($elem, className)? removeClass($elem, className): addClass($elem, className); return $elem}}
+  function toggleAttr(attrName) {return function ($elem) {$elem.hasAttribute(attrName)? $elem.removeAttribute(attrName): $elem.setAttribute(attrName, true); return $elem}}
   function find(selector) {return function() {return document.querySelector(selector)}}
   function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
@@ -182,6 +175,11 @@
   function click($elem, delegateSelector) {return on($elem, 'click', delegateSelector)}
   function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
   function keyup($elem, delegateSelector) {return on($elem, 'keyup', delegateSelector)}
+  function domChildrenChange($elem, delegateSelector) {
+    var timeout
+    return on($elem, 'DOMSubtreeModified', delegateSelector)
+             (function (event, done) {if (timeout) clearTimeout(timeout); timeout = setTimeout(function () {done(event)}, 30)})
+  }
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
   function each(func) {return function (arr) {[].forEach.call(arr, func)}}
   function just(x) {return function () {return x}}
