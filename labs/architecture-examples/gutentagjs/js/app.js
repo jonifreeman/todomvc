@@ -57,13 +57,6 @@
     (updateTodoAndCloseEditMode)
     .run()
 
-  function bindTodoEditBlurHandler($todo) {
-    blur($todo.querySelector('input.edit'))
-      (eventTarget)
-      (updateTodoAndCloseEditMode)
-      .run()
-  }
-
   click($completedCount)
     (findAll(completedTodo))
     (each(deleteTodo))
@@ -91,6 +84,13 @@
     (toggleVisibility($completedCount, completedTodo))
     (markCompleteAll)
     .run()
+
+  function bindTodoEditBlurHandler($todo) {
+    blur($todo.querySelector('input.edit'))
+      (eventTarget)
+      (updateTodoAndCloseEditMode)
+      .run()
+  }
 
   function updateTodoAndCloseEditMode($todoEditField) {
     chain()
