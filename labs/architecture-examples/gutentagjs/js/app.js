@@ -48,6 +48,7 @@
     (mapTodo)
     (toggleClass('editing'))
     (selectTodoText)
+    (bindTodoEditBlurHandler)
     .run()
 
   keyup($todoList, 'input.edit')
@@ -56,13 +57,12 @@
     (updateTodoAndCloseEditMode)
     .run()
 
-  click(document)
-    (eventTarget)
-    (ignore('input.edit'))
-    (find('li.editing input.edit'))
-    (filterNonEmpty)
-    (updateTodoAndCloseEditMode)
-    .run()
+  function bindTodoEditBlurHandler($todo) {
+    blur($todo.querySelector('input.edit'))
+      (eventTarget)
+      (updateTodoAndCloseEditMode)
+      .run()
+  }
 
   click($completedCount)
     (findAll(completedTodo))
@@ -95,11 +95,13 @@
   function updateTodoAndCloseEditMode($todoEditField) {
     chain()
       (just($todoEditField))
+      (removeEventListener('blur'))
       (pair(parent, inputValue))
       (updateTodo)
       (toggleClass('editing'))
       (deleteEmptyTodo)
       .run()
+    return $todoEditField
   }
 
   function createTodo(text) {
@@ -114,7 +116,7 @@
   function setTodoLabel($todo, text) {$todo.querySelector('label').innerHTML = text}
   function setTodoEditValue($todo, text) {$todo.querySelector('input.edit').setAttribute('value', text)}
   function addTodoToList($todo) {$todoList.appendChild($todo)}
-  function selectTodoText($todo) {$todo.lastElementChild.select()}
+  function selectTodoText($todo) {$todo.lastElementChild.select(); return $todo}
   function deleteTodo($todo) {$todo.parentNode.removeChild($todo)}
   function deleteEmptyTodo($todo) {if (!$todo.querySelector('label').innerHTML) deleteTodo($todo)}
   function mapTodo(event) {return event.target.parentNode.parentNode}
@@ -162,7 +164,10 @@
   function addEventListener($elem, eventType, eventHandlerCallback) {
     if ($elem.addEventListener) $elem.addEventListener(eventType, eventHandlerCallback, false)
     else if ($elem.attachEvent) $elem.attachEvent('on' + eventType, eventHandlerCallback)
+    $elem.listeners = $elem.listeners || {}
+    $elem.listeners[eventType] = eventHandlerCallback
   }
+  function removeEventListener(eventType) {return function ($elem) {$elem.removeEventListener(eventType, $elem.listeners[eventType], false); return $elem}}
   function matchesQuerySelector($elem, selector) {
     if (!selector) return false
     if (selector.indexOf('.') >= 0) return matches($elem, selector.split('.'), 'className')
@@ -170,11 +175,11 @@
     else return ($elem.tagName.toLowerCase() === selector)
   }
   function matches($elem, parts, key) {return (!parts[0] || $elem.tagName.toLowerCase() === parts[0]) && $elem[key] === parts[1]}
-  function ignore(selector) {return function ($elem) {if (matchesQuerySelector($elem, selector)) this.cancel(); return $elem}}
 
   function click($elem, delegateSelector) {return on($elem, 'click', delegateSelector)}
   function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
   function keyup($elem, delegateSelector) {return on($elem, 'keyup', delegateSelector)}
+  function blur($elem, delegateSelector) {return on($elem, 'blur', delegateSelector)}
   function domChildrenChange($elem, delegateSelector) {
     var timeout
     return on($elem, 'DOMSubtreeModified', delegateSelector)
