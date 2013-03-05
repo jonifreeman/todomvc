@@ -11,7 +11,7 @@ function chain() {
   function run(queue /*, ...*/) {
     if (queue.length === 0) return 
     var skipFirst = 1
-      , params = slice(arguments, skipFirst)
+      , params = slice(arguments, skipFirst).filter(exists)
       , restOfQueue = slice(queue, skipFirst)
       , func = queue[0]
       , ctx = {shouldContinue: true, cancel: function () {ctx.shouldContinue = false}}
@@ -28,5 +28,6 @@ function chain() {
   function doneCallback(ctx, queue) {return function (/*...*/) {
     if (ctx.shouldContinue) run.apply(withoutContext, [queue].concat(slice(arguments)))
   }}
+  function exists(x) {return x != undefined}
   return chainer
 }
