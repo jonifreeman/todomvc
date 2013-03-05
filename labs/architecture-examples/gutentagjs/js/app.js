@@ -23,6 +23,9 @@
     (just($todoTemplate))
     (deleteTodo)
     (applyTodoFilter)
+    (loadTodos)
+    (map(jsonToTodo))
+    (each(addTodoToList))
     .run()
 
   keyup($newTodo)
@@ -38,6 +41,7 @@
   click($todoList, 'input.toggle')
     (mapTodo)
     (toggleClass('completed'))
+    (simulateDomChange)
     .run()
 
   click($todoList, 'button.destroy')
@@ -68,6 +72,7 @@
     (each(markCompletion))
     (findAll('input.toggle'))
     (each(markCheckbox))
+    (simulateDomChange) 
     .run()
 
   click($filters, 'a')
@@ -76,7 +81,10 @@
     (applyTodoFilter)
     .run()
 
-  domChildrenChange(document.body)
+  domChildrenChange($todoList)
+    (findAll(todoElem))
+    (map(todoToJson))
+    (saveTodos)
     (updateTodoCount)
     (pluralizeTodoCount)
     (toggleVisibility($main, todoElem))
@@ -128,12 +136,26 @@
   function toggleVisibility($elem, selector) {return function () {countAll(selector) > 0? show($elem)(): hide($elem)()}}
 
   function markCompletion($todo) {$completeAll.checked? addClass($todo, 'completed'): removeClass($todo, 'completed')}
-  function markCheckbox($box) {$box.checked = ($completeAll.checked? true: false)}
+  function markCheckbox($box) {$box.checked = $completeAll.checked}
   function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0)}
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
   function clearTodoFilters() {document.body.className = ''}
   function applyTodoFilter(done) {setTimeout(function () {addClass(document.body, location.href.split('#/')[1]);done()}, 1)}
+
+  // TODO: use localstorage
+  function loadTodos() {return [{title: 'jepa', completed: true},{title:'lol', completed:false}]}
+  function saveTodos(todos) {console.log(todos)}
+  function todoToJson($todo) {return {title: $todo.querySelector('label'), completed: $todo.querySelector('.toggle').checked}}
+  function jsonToTodo(json) {
+    var $todo = createTodo(json.title)
+    if (json.completed) setCompleted($todo)
+    return $todo
+  }
+  function setCompleted($todo) {
+    addClass($todo, 'completed')
+    $todo.querySelector('.toggle').checked = true
+  }
 
   function eventTarget(event) {return event.target}
   function inputValue($elem) {return $elem.value.trim()}
@@ -146,10 +168,9 @@
   function hide($elem) {return function () {$elem.style.display = 'none'}}
   function show($elem) {return function () {$elem.style.display = 'block'}}
   function hasClass($elem, className) {return $elem.className.indexOf(className) >= 0}
-  function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className; toggleAttr('force-dom-change-event-hack')(document.body)}
-  function removeClass($elem, className) {$elem.className = $elem.className.replace(className, ''); toggleAttr('force-dom-change-event-hack')(document.body)}
+  function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
+  function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
   function toggleClass(className) {return function ($elem) {hasClass($elem, className)? removeClass($elem, className): addClass($elem, className); return $elem}}
-  function toggleAttr(attrName) {return function ($elem) {$elem.hasAttribute(attrName)? $elem.removeAttribute(attrName): $elem.setAttribute(attrName, true); return $elem}}
   function find(selector) {return function() {return document.querySelector(selector)}}
   function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
@@ -181,12 +202,15 @@
   function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
   function keyup($elem, delegateSelector) {return on($elem, 'keyup', delegateSelector)}
   function blur($elem, delegateSelector) {return on($elem, 'blur', delegateSelector)}
-  function domChildrenChange($elem, delegateSelector) {
-    var timeout
-    return on($elem, 'DOMSubtreeModified', delegateSelector)
-             (function (event, done) {if (timeout) clearTimeout(timeout); timeout = setTimeout(function () {done(event)}, 30)})
+  function domChildrenChange($elem, delegateSelector) {return on($elem, 'DOMSubtreeModified', delegateSelector)}
+  function simulateDomChange() { // Needed as not all attribute changes cause the event to be fired
+    var e = document.createEvent('MutationEvent')
+    e.initMutationEvent('DOMSubtreeModified', false, false, window)
+    $todoList.dispatchEvent(e)
   }
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
-  function each(func) {return function (arr) {[].forEach.call(arr, func)}}
+  function each(func) {return function (arr) {slice(arr).forEach(func)}}
+  function map(func) {return function (arr) {return slice(arr).map(func)}}
+  function slice(arr) {return Array.prototype.slice.call(arr)}
   function just(x) {return function () {return x}}
 })();
