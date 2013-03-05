@@ -22,6 +22,7 @@
     (hide($completedCount))
     (just($todoTemplate))
     (deleteTodo)
+    (applyTodoFilter)
     .run()
 
   keyup($input)
@@ -71,8 +72,8 @@
 
   click($filters, 'a')
     (eventTarget)
-    (clearBodyClasses)
-    (addLinkClassToBody)
+    (clearTodoFilters)
+    (applyTodoFilter)
     .run()
 
   domChildrenChange(document.body)
@@ -131,8 +132,8 @@
   function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0)}
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
-  function clearBodyClasses($elem) {document.body.className = ''; return $elem}
-  function addLinkClassToBody($elem) {addClass(document.body, $elem.href.split('#/')[1]); return $elem}
+  function clearTodoFilters() {document.body.className = ''}
+  function applyTodoFilter(done) {setTimeout(function () {addClass(document.body, location.href.split('#/')[1]);done()}, 1)}
 
   function eventTarget(event) {return event.target}
   function inputValue($input) {return $input.value.trim()}
