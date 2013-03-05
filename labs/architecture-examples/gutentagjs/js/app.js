@@ -5,7 +5,7 @@
     , completedTodo = 'li.completed'
     , $main = $('#main')
     , $footer = $('#footer')
-    , $input = $('#new-todo')
+    , $newTodo = $('#new-todo')
     , $todoList = $('#todo-list')
     , $todoCountWrapper = $('#todo-count')
     , $completedCount = $('#clear-completed')
@@ -25,14 +25,14 @@
     (applyTodoFilter)
     .run()
 
-  keyup($input)
+  keyup($newTodo)
     (filterKey(ENTER))
     (eventTarget)
     (inputValue)
     (filterNonEmpty)
     (createTodo)
     (addTodoToList)
-    (clearInputValue)
+    (clearNewTodoInput)
     .run()
 
   click($todoList, 'input.toggle')
@@ -136,8 +136,8 @@
   function applyTodoFilter(done) {setTimeout(function () {addClass(document.body, location.href.split('#/')[1]);done()}, 1)}
 
   function eventTarget(event) {return event.target}
-  function inputValue($input) {return $input.value.trim()}
-  function clearInputValue() {$input.value = ''}
+  function inputValue($elem) {return $elem.value.trim()}
+  function clearNewTodoInput() {$newTodo.value = ''}
   function filterNonEmpty(value) {if (!value || value.length === 0) this.cancel(); return value}
   function filterKey(code) {return function (event) {if (code !== event.which) this.cancel(); return event}}
 
