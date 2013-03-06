@@ -1,4 +1,4 @@
-function chain() {
+;function chain() {
   var queue = []
     , withoutContext = null
 
@@ -7,6 +7,7 @@ function chain() {
     return chainer
   }
   chainer.run = function () {return run(queue)}
+  chainer.runner = function () {return function () {return run(queue)}}
 
   function run(queue /*, ...*/) {
     if (queue.length === 0) return 
@@ -30,4 +31,4 @@ function chain() {
   }}
   function exists(x) {return x != undefined}
   return chainer
-}
+};

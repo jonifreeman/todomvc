@@ -15,8 +15,9 @@
     , $filters = $('#filters')
 
   var ENTER = 13
+    , APP_READY = 'app_ready'
 
-  chain()
+  domReady()
     (hide($main))
     (hide($footer))
     (hide($completedCount))
@@ -26,6 +27,7 @@
     (loadTodos)
     (map(jsonToTodo))
     (each(addTodoToList))
+    (pubsub.publish(APP_READY))
     .run()
 
   keyup($newTodo)
@@ -72,7 +74,7 @@
     (each(markCompletion))
     (findAll('input.toggle'))
     (each(markCheckbox))
-    (simulateDomChange) 
+    (simulateDomChange)
     .run()
 
   click($filters, 'a')
@@ -82,9 +84,6 @@
     .run()
 
   domChildrenChange($todoList)
-    (findAll(todoElem))
-    (map(todoToJson))
-    (saveTodos)
     (updateTodoCount)
     (pluralizeTodoCount)
     (toggleVisibility($main, todoElem))
@@ -93,6 +92,13 @@
     (toggleVisibility($completedCount, completedTodo))
     (markCompleteAll)
     .run()
+
+  pubsub.subscribe(APP_READY,
+    domChildrenChange($todoList)
+        (findAll(todoElem))
+        (map(todoToJson))
+        (saveTodos)
+        .runner())
 
   function bindTodoEditBlurHandler($todo) {
     blur($todo.querySelector('input.edit'))
@@ -146,7 +152,7 @@
   // TODO: use localstorage
   function loadTodos() {return [{title: 'jepa', completed: true},{title:'lol', completed:false}]}
   function saveTodos(todos) {console.log(todos)}
-  function todoToJson($todo) {return {title: $todo.querySelector('label'), completed: $todo.querySelector('.toggle').checked}}
+  function todoToJson($todo) {return {title: $todo.querySelector('label').innerHTML, completed: $todo.querySelector('.toggle').checked}}
   function jsonToTodo(json) {
     var $todo = createTodo(json.title)
     if (json.completed) setCompleted($todo)
@@ -176,7 +182,7 @@
   function countAll(selector) {return document.querySelectorAll(selector).length}
 
   function on($elem, eventType, delegateSelector) {
-    return chain() 
+    return chain()
       (function (done) {addEventListener($elem, eventType, function (event) {done(event)})})
       (function (event) {
         if (delegateSelector && !matchesQuerySelector(event.target, delegateSelector)) this.cancel()
@@ -202,6 +208,7 @@
   function dblclick($elem, delegateSelector) {return on($elem, 'dblclick', delegateSelector)}
   function keyup($elem, delegateSelector) {return on($elem, 'keyup', delegateSelector)}
   function blur($elem, delegateSelector) {return on($elem, 'blur', delegateSelector)}
+  function domReady() {return on(document, 'DOMContentLoaded')}
   function domChildrenChange($elem, delegateSelector) {return on($elem, 'DOMSubtreeModified', delegateSelector)}
   function simulateDomChange() { // Needed as not all attribute changes cause the event to be fired
     var e = document.createEvent('MutationEvent')
