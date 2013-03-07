@@ -17,6 +17,9 @@
   var ENTER = 13
     , APP_READY = 'app_ready'
 
+  var publish = function (eventName, data) {return function () {pubsub.publish(eventName, data)}}
+    , subscribe = pubsub.subscribe
+
   domReady()
     (hide($main))
     (hide($footer))
@@ -27,7 +30,7 @@
     (loadTodos)
     (map(jsonToTodo))
     (each(addTodoToList))
-    (pubsub.publish(APP_READY))
+    (publish(APP_READY))
     .run()
 
   keyup($newTodo)
@@ -55,13 +58,20 @@
     (mapTodo)
     (toggleClass('editing'))
     (selectTodoText)
-    (bindTodoEditBlurHandler)
     .run()
 
   keyup($todoList, 'input.edit')
     (filterKey(ENTER))
     (eventTarget)
-    (updateTodoAndCloseEditMode)
+    (blurElem)
+    .run()
+
+  blur($todoList, 'input.edit')
+    (eventTarget)
+    (pair(parent, inputValue))
+    (updateTodo)
+    (toggleClass('editing'))
+    (deleteEmptyTodo)
     .run()
 
   click($completedCount)
@@ -93,31 +103,12 @@
     (markCompleteAll)
     .run()
 
-  pubsub.subscribe(APP_READY,
+  subscribe(APP_READY,
     domChildrenChange($todoList)
         (findAll(todoElem))
         (map(todoToJson))
         (saveTodos)
         .runner())
-
-  function bindTodoEditBlurHandler($todo) {
-    blur($todo.querySelector('input.edit'))
-      (eventTarget)
-      (updateTodoAndCloseEditMode)
-      .run()
-  }
-
-  function updateTodoAndCloseEditMode($todoEditField) {
-    chain()
-      (just($todoEditField))
-      (removeEventListener('blur'))
-      (pair(parent, inputValue))
-      (updateTodo)
-      (toggleClass('editing'))
-      (deleteEmptyTodo)
-      .run()
-    return $todoEditField
-  }
 
   function createTodo(text) {
     var $todo = $todoTemplate.cloneNode(true)
@@ -178,6 +169,7 @@
   function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
   function toggleClass(className) {return function ($elem) {hasClass($elem, className)? removeClass($elem, className): addClass($elem, className); return $elem}}
   function find(selector) {return function() {return document.querySelector(selector)}}
+  function blurElem($elem) {$elem.blur(); return $elem}
   function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
 
@@ -190,12 +182,9 @@
       })
   }
   function addEventListener($elem, eventType, eventHandlerCallback) {
-    if ($elem.addEventListener) $elem.addEventListener(eventType, eventHandlerCallback, false)
-    else if ($elem.attachEvent) $elem.attachEvent('on' + eventType, eventHandlerCallback)
-    $elem.listeners = $elem.listeners || {}
-    $elem.listeners[eventType] = eventHandlerCallback
+    var useCapturePhase = (eventType === 'focus' || eventType === 'blur')
+    $elem.addEventListener(eventType, eventHandlerCallback, useCapturePhase)
   }
-  function removeEventListener(eventType) {return function ($elem) {$elem.removeEventListener(eventType, $elem.listeners[eventType], false); return $elem}}
   function matchesQuerySelector($elem, selector) {
     if (!selector) return false
     if (selector.indexOf('.') >= 0) return matches($elem, selector.split('.'), 'className')
