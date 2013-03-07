@@ -47,7 +47,8 @@
   click($todoList, 'input.toggle')
     (mapTodo)
     (toggleClass('completed'))
-    (simulateDomChange)
+    (findChild('input.toggle'))
+    (toggleCheckbox)
     .run()
 
   click($todoList, 'button.destroy')
@@ -85,7 +86,6 @@
     (each(markCompletion))
     (findAll('input.toggle'))
     (each(markCheckbox))
-    (simulateDomChange)
     .run()
 
   click($filters, 'a')
@@ -134,7 +134,10 @@
   function toggleVisibility($elem, selector) {return function () {countAll(selector) > 0? show($elem)(): hide($elem)()}}
 
   function markCompletion($todo) {if ($completeAll.checked) {addClass($todo, 'completed'); $completeAll.checked = true} else removeClass($todo, 'completed')}
-  function markCheckbox($box) {$box.checked = $completeAll.checked}
+  function markCheckbox($box) {
+    $box.checked = $completeAll.checked
+    $box.checked? $box.setAttribute('checked', 'checked'): $box.removeAttribute('checked')
+  }
   function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0)}
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
@@ -142,16 +145,14 @@
   function applyTodoFilter(done) {setTimeout(function () {addClass(document.body, location.href.split('#/')[1]);done()}, 1)}
 
   function loadTodos() {return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')}
-  function saveTodos(todos) {localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))}
+  function saveTodos(todos) {localStorage.setItem(STORAGE_KEY, JSON.stringify(todos)); console.log(JSON.stringify(todos))}
   function todoToJson($todo) {return {title: $todo.querySelector('label').innerHTML, completed: $todo.querySelector('.toggle').checked}}
-  function jsonToTodo(json) {
-    var $todo = createTodo(json.title)
-    if (json.completed) setCompleted($todo)
-    return $todo
-  }
+  function jsonToTodo(json) {var $todo = createTodo(json.title); if (json.completed) setCompleted($todo); return $todo}
   function setCompleted($todo) {
     addClass($todo, 'completed')
-    $todo.querySelector('.toggle').checked = true
+    var $box = $todo.querySelector('.toggle')
+    $box.checked = true
+    toggleCheckbox($box)
   }
 
   function eventTarget(event) {return event.target}
@@ -168,8 +169,10 @@
   function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
   function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
   function toggleClass(className) {return function ($elem) {hasClass($elem, className)? removeClass($elem, className): addClass($elem, className); return $elem}}
+  function toggleCheckbox($box) {$box.checked? $box.setAttribute('checked', 'checked'): $box.removeAttribute('checked')}
   function blurElem($elem) {$elem.blur(); return $elem}
   function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
+  function findChild(selector) {return function ($elem) {return $elem.querySelector(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
 
   function on($elem, eventType, delegateSelector) {
@@ -198,11 +201,7 @@
   function blur($elem, delegateSelector) {return on($elem, 'blur', delegateSelector)}
   function domReady() {return on(document, 'DOMContentLoaded')}
   function domChildrenChange($elem, delegateSelector) {return on($elem, 'DOMSubtreeModified', delegateSelector)}
-  function simulateDomChange() { // Needed as not all attribute changes cause the event to be fired
-    var e = document.createEvent('MutationEvent')
-    e.initMutationEvent('DOMSubtreeModified', false, false, window, null, null, null, null)
-    $todoList.dispatchEvent(e)
-  }
+
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
   function each(func) {return function (arr) {slice(arr).forEach(func)}}
   function map(func) {return function (arr) {return slice(arr).map(func)}}
