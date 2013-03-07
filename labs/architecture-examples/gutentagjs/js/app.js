@@ -16,6 +16,7 @@
 
   var ENTER = 13
     , APP_READY = 'app_ready'
+    , STORAGE_KEY = 'todos-gutentagjs'
 
   var publish = function (eventName, data) {return function () {pubsub.publish(eventName, data)}}
     , subscribe = pubsub.subscribe
@@ -105,10 +106,10 @@
 
   subscribe(APP_READY,
     domChildrenChange($todoList)
-        (findAll(todoElem))
-        (map(todoToJson))
-        (saveTodos)
-        .runner())
+      (findAll(todoElem))
+      (map(todoToJson))
+      (saveTodos)
+      .runner())
 
   function createTodo(text) {
     var $todo = $todoTemplate.cloneNode(true)
@@ -132,7 +133,7 @@
   function updateCompletedCount() {$completedCount.innerHTML = countAll(completedTodo)}
   function toggleVisibility($elem, selector) {return function () {countAll(selector) > 0? show($elem)(): hide($elem)()}}
 
-  function markCompletion($todo) {$completeAll.checked? addClass($todo, 'completed'): removeClass($todo, 'completed')}
+  function markCompletion($todo) {if ($completeAll.checked) {addClass($todo, 'completed'); $completeAll.checked = true} else removeClass($todo, 'completed')}
   function markCheckbox($box) {$box.checked = $completeAll.checked}
   function markCompleteAll() {$completeAll.checked = (numActiveTodos() === 0)}
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
@@ -140,9 +141,8 @@
   function clearTodoFilters() {document.body.className = ''}
   function applyTodoFilter(done) {setTimeout(function () {addClass(document.body, location.href.split('#/')[1]);done()}, 1)}
 
-  // TODO: use localstorage
-  function loadTodos() {return [{title: 'jepa', completed: true},{title:'lol', completed:false}]}
-  function saveTodos(todos) {console.log(todos)}
+  function loadTodos() {return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')}
+  function saveTodos(todos) {localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))}
   function todoToJson($todo) {return {title: $todo.querySelector('label').innerHTML, completed: $todo.querySelector('.toggle').checked}}
   function jsonToTodo(json) {
     var $todo = createTodo(json.title)
@@ -201,7 +201,7 @@
   function domChildrenChange($elem, delegateSelector) {return on($elem, 'DOMSubtreeModified', delegateSelector)}
   function simulateDomChange() { // Needed as not all attribute changes cause the event to be fired
     var e = document.createEvent('MutationEvent')
-    e.initMutationEvent('DOMSubtreeModified', false, false, window)
+    e.initMutationEvent('DOMSubtreeModified', false, false, window, null, null, null, null)
     $todoList.dispatchEvent(e)
   }
   function pair(fst, snd) {return function (val, done) {done(fst(val), snd(val))}}
