@@ -168,7 +168,6 @@
   function addClass($elem, className) {if (!hasClass($elem, className)) $elem.className += ' ' + className}
   function removeClass($elem, className) {$elem.className = $elem.className.replace(className, '')}
   function toggleClass(className) {return function ($elem) {hasClass($elem, className)? removeClass($elem, className): addClass($elem, className); return $elem}}
-  function find(selector) {return function() {return document.querySelector(selector)}}
   function blurElem($elem) {$elem.blur(); return $elem}
   function findAll(selector) {return function() {return document.querySelectorAll(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
