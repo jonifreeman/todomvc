@@ -128,6 +128,7 @@
   function deleteEmptyTodo($todo) {if (!$todo.querySelector('label').innerHTML) deleteTodo($todo)}
   function mapTodo(event) {return event.target.parentNode.parentNode}
 
+  function clearNewTodoInput() {$newTodo.value = ''}
   function updateTodoCount() {$todoCount.innerHTML = numActiveTodos()}
   function pluralizeTodoCount() {numActiveTodos() === 1? removeClass($todoCountWrapper, 'plural'): addClass($todoCountWrapper, 'plural');}
   function updateCompletedCount() {$completedCount.innerHTML = countAll(completedTodo)}
@@ -157,7 +158,6 @@
 
   function eventTarget(event) {return event.target}
   function inputValue($elem) {return $elem.value.trim()}
-  function clearNewTodoInput() {$newTodo.value = ''}
   function filterNonEmpty(value) {if (!value || value.length === 0) this.cancel(); return value}
   function filterKey(code) {return function (event) {if (code !== event.which) this.cancel(); return event}}
 
