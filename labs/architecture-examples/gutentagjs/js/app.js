@@ -15,11 +15,11 @@
     , $filters = $('#filters')
 
   var ENTER = 13
-    , APP_READY = 'app_ready'
+    , APP_READY = new Rx.Subject()
     , STORAGE_KEY = 'todos-gutentagjs'
 
-  var publish = function (eventName, data) {return function () {pubsub.publish(eventName, data)}}
-    , subscribe = pubsub.subscribe
+  function publish(subject) { return function(data) { subject.onNext(data) }}
+  function subscribe(subject, action) { subject.subscribe(action) }
 
   domReady()
     (hide($main))
