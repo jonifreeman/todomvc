@@ -143,7 +143,8 @@
   function numActiveTodos() {return countAll(todoElem) - countAll(completedTodo)}
 
   function clearTodoFilters() {document.body.className = ''}
-  function applyTodoFilter(done) {setTimeout(function () {addClass(document.body, location.href.split('#/')[1]);done()}, 1)}
+//  function applyTodoFilter(done) {setTimeout(function () {addClass(document.body, location.href.split('#/')[1]);done()}, 1)}
+  function applyTodoFilter() { return Rx.Observable.returnValue([]).delay(1).subscribe(function() { addClass(document.body, location.href.split('#/')[1])})}
 
   function loadTodos() {return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')}
   function saveTodos(todos) {localStorage.setItem(STORAGE_KEY, JSON.stringify(todos)); console.log(JSON.stringify(todos))}
@@ -158,8 +159,10 @@
 
   function eventTarget(event) {return event.target}
   function inputValue($elem) {return $elem.value.trim()}
-  function filterNonEmpty(value) {if (!value || value.length === 0) this.cancel(); return value}
-  function filterKey(code) {return function (event) {if (code !== event.which) this.cancel(); return event}}
+//  function filterNonEmpty(value) {if (!value || value.length === 0) this.cancel(); return value}
+//  function filterKey(code) {return function (event) {if (code !== event.which) this.cancel(); return event}}
+  function filterNonEmpty(value) {return value && value.length > 0}
+  function filterKey(code) {return function (event) {return (code === event.which)}}
 
   function $(cssSelector) {return document.querySelector(cssSelector)}
   function parent($elem) {return $elem.parentNode}
@@ -175,13 +178,18 @@
   function findChild(selector) {return function ($elem) {return $elem.querySelector(selector)}}
   function countAll(selector) {return document.querySelectorAll(selector).length}
 
-  function on($elem, eventType, delegateSelector) {
+/*  function on($elem, eventType, delegateSelector) {
     return chain()
       (function (done) {addEventListener($elem, eventType, function (event) {done(event)})})
       (function (event) {
         if (delegateSelector && !matchesQuerySelector(event.target, delegateSelector)) this.cancel()
         return event
       })
+  }*/
+  function on($elem, eventType, delegateSelector) {
+    return chain(Rx.Observable.fromEvent($elem, eventType).where(function(event) { 
+        return !delegateSelector || matchesQuerySelector(event.target, delegateSelector) 
+      }))
   }
   function addEventListener($elem, eventType, eventHandlerCallback) {
     var useCapturePhase = (eventType === 'focus' || eventType === 'blur')
